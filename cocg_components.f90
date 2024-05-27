@@ -1,0 +1,102 @@
+MODULE COCG_Components
+    IMPLICIT NONE
+
+    CONTAINS 
+    SUBROUTINE Calc_Next_Alpha(N, rn_1, pn_1, A, alphan_1)
+        IMPLICIT NONE 
+        INTEGER, INTENT(in) :: N 
+        DOUBLE PRECISION, INTENT(in) :: rn_1(N), pn_1(N), A(N,N)
+        DOUBLE PRECISION, INTENT(out) :: alphan_1
+
+        alphan_1 = SUM(rn_1 * rn_1) / SUM(pn_1 * MATMUL(A, pn_1))
+
+        RETURN
+    END SUBROUTINE
+
+    SUBROUTINE Calc_Next_x(N, pn_1, xn_1, alphan_1, xn)
+        IMPLICIT NONE 
+        INTEGER, INTENT(in) :: N 
+        DOUBLE PRECISION, INTENT(in) :: alphan_1, pn_1(N), xn_1(N) 
+        DOUBLE PRECISION, INTENT(out) :: xn(N)
+
+        xn = xn_1 + alphan_1 * pn_1
+
+        RETURN
+    END SUBROUTINE
+
+    SUBROUTINE Calc_Next_r(N, rn_1, pn_1, A, alphan_1, rn)
+        IMPLICIT NONE 
+        INTEGER, INTENT(in) :: N 
+        DOUBLE PRECISION, INTENT(in) :: alphan_1, A(N,N), pn_1(N), rn_1(N)
+        DOUBLE PRECISION, INTENT(out) :: rn(N)
+
+        rn = rn_1 + alphan_1 * MATMUL(A, pn_1)
+
+        RETURN
+    END SUBROUTINE
+
+    SUBROUTINE Calc_Next_beta(N, rn, rn_1, betan_1)
+        IMPLICIT NONE 
+        INTEGER, INTENT(in) :: N 
+        DOUBLE PRECISION, INTENT(in) :: rn_1(N), rn(N)
+        DOUBLE PRECISION, INTENT(out) :: betan_1
+
+        betan_1 = SUM(rn * rn) / SUM(rn_1 * rn_1)
+
+        RETURN
+    END SUBROUTINE
+
+    SUBROUTINE Calc_Next_p(N, betan_1, pn_1, rn, pn)
+        IMPLICIT NONE 
+        INTEGER, INTENT(in) :: N 
+        DOUBLE PRECISION, INTENT(in) :: betan_1, pn_1(N), rn(N) 
+        DOUBLE PRECISION, INTENT(out) :: pn(N)
+
+        pn = rn + betan_1 * pn_1
+
+        RETURN 
+    END SUBROUTINE 
+
+    SUBROUTINE Shift_rn(N, rn, pins, rns)
+        IMPLICIT NONE 
+        INTEGER, INTENT(in) :: N
+        DOUBLE PRECISION, INTENT(in) :: rn(N), pins 
+        DOUBLE PRECISION, INTENT(out) :: rns(N)
+
+        rns = rn / pins
+
+        RETURN 
+    END SUBROUTINE
+
+    SUBROUTINE Calc_Next_pis(pins, sigma, alphan_1, alphan_2, betan_2, pin_1s, pin_2s)
+        IMPLICIT NONE 
+        DOUBLE PRECISION, INTENT(in) :: sigma, alphan_1, alphan_2, betan_2, pin_1s, pin_2s
+        DOUBLE PRECISION, INTENT(out) :: pins 
+
+        pins = (1d0 + alphan_1 * sigma + alphan_1 * betan_2 / alphan_2) * pin_1s &
+                    - alphan_1 * betan_2 / alphan_2 * pin_2s
+        
+        RETURN
+    END SUBROUTINE
+
+    SUBROUTINE Calc_Shifted_Alpha(pin_1s, pins, alphan_1, alphan_1s)
+        IMPLICIT NONE 
+        DOUBLE PRECISION, INTENT(in) :: pin_1s, pins, alphan_1
+        DOUBLE PRECISION, INTENT(out) :: alphan_1s
+
+        alphan_1s = pin_1s * alphan_1 / pins
+
+        RETURN 
+    END SUBROUTINE 
+
+    SUBROUTINE Calc_Shifted_Beta(pin_1s, pins, betan_1, betan_1s)
+        IMPLICIT NONE 
+        DOUBLE PRECISION, INTENT(in) :: pin_1s, pins, betan_1
+        DOUBLE PRECISION, INTENT(out) :: betan_1s
+
+        betan_1s = pin_1s / pins * pin_1s / pins * betan_1
+
+        RETURN 
+    END SUBROUTINE
+
+END MODULE
