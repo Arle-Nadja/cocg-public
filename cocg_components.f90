@@ -8,7 +8,7 @@ MODULE COCG_Components
         COMPLEX(KIND(0d0)), INTENT(in) :: rn_1(N), pn_1(N), A(N,N)
         COMPLEX(KIND(0d0)), INTENT(out) :: alphan_1
 
-        alphan_1 = SUM(rn_1 * rn_1) / SUM(pn_1 * MATMUL(A, pn_1))
+        alphan_1 = dot_product(rn_1, rn_1) / dot_product(pn_1, MATMUL(A, pn_1))
 
         RETURN
     END SUBROUTINE
@@ -30,7 +30,7 @@ MODULE COCG_Components
         COMPLEX(KIND(0d0)), INTENT(in) :: alphan_1, A(N,N), pn_1(N), rn_1(N)
         COMPLEX(KIND(0d0)), INTENT(out) :: rn(N)
 
-        rn = rn_1 + alphan_1 * MATMUL(A, pn_1)
+        rn = rn_1 - alphan_1 * MATMUL(A, pn_1)
 
         RETURN
     END SUBROUTINE
@@ -41,7 +41,7 @@ MODULE COCG_Components
         COMPLEX(KIND(0d0)), INTENT(in) :: rn_1(N), rn(N)
         COMPLEX(KIND(0d0)), INTENT(out) :: betan_1
 
-        betan_1 = SUM(rn * rn) / SUM(rn_1 * rn_1)
+        betan_1 = dot_product(rn, rn) / dot_product(rn_1, rn_1)
 
         RETURN
     END SUBROUTINE
