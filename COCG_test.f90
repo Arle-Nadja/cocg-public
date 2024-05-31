@@ -9,7 +9,7 @@ PROGRAM MAIN
 
     N = 100
     Nsig = 10
-    delta_conv = 1d-16
+    delta_conv = 1d-12
 
     ALLOCATE(H(N,N), b(N), x(N,0:Nsig), sigs(0:Nsig))
 

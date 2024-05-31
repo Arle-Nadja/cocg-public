@@ -3,7 +3,6 @@ COCG_c = objects/cocg_components.o
 COCG_p = objects/cocg_procedures.o
 modin = -Imodules 
 modout = -Jmodules 
-lapack = -LC:\lapack-3.9.1 -llapack -lrefblas 
 
 all : mkdr a.exe
 
@@ -33,4 +32,8 @@ $(COCG_c) : cocg_components.f90
 	gfortran -c -o $(COCG_c) cocg_components.f90 $(modout)
 
 clean : 
+ifeq ($(OS),Windows_NT)
 	del /S *.mod *.o *.exe
+else
+	rm -ri modules objects *.exe
+endif
