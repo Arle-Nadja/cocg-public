@@ -9,7 +9,7 @@ PROGRAM MAIN
 
     N = 100
     Nsig = 10
-    delta_conv = 1d-10
+    delta_conv = 1d-16
 
     ALLOCATE(H(N,N), b(N), x(N,0:Nsig), sigs(0:Nsig))
 
@@ -25,7 +25,7 @@ PROGRAM MAIN
             READ(999,*) dum
             H(ix,jx) = dum
         END DO
-        ! H(ix,ix) = H(ix,ix) + N
+        H(ix,ix) = H(ix,ix) 
         b(ix) = DBLE(ix)
     END DO
 

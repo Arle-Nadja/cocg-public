@@ -10,14 +10,15 @@ MODULE COCG_Kernel
         DOUBLE PRECISION, INTENT(in) :: delta_conv 
         COMPLEX(KIND(0d0)), INTENT(out) :: x(N)
         INTEGER, INTENT(out) :: Nconv
-        COMPLEX(KIND(0d0)), ALLOCATABLE :: xn(:), xn_1(:), pn(:), pn_1(:), rn(:), rn_1(:)
-        COMPLEX(KIND(0d0)) :: alphan_1, betan_1
+        COMPLEX(KIND(0d0)), ALLOCATABLE :: xn(:), xn_1(:), pn(:), pn_1(:), rn(:), rn_1(:), Ap(:)
+        COMPLEX(KIND(0d0)) :: alphan_1, betan_1, rr
         INTEGER :: iter 
         DOUBLE PRECISION :: conv 
 
         ALLOCATE(xn(N), xn_1(N))
         ALLOCATE(pn(N), pn_1(N))
         ALLOCATE(rn(N), rn_1(N))
+        ALLOCATE(Ap(N))
 
         !! INITIAL SETTINGS
         xn_1(:) = 0d0 
@@ -28,7 +29,7 @@ MODULE COCG_Kernel
 
         DO WHILE(ABS(conv) > delta_conv)
             iter = iter + 1
-            CALL COCG_Step(N, rn_1, pn_1, xn_1, H, alphan_1, betan_1, rn, pn, xn)
+            CALL COCG_Step(N, rn_1, pn_1, xn_1, H, Ap, rr, alphan_1, betan_1, rn, pn, xn)
 
             conv = SUM(ABS(rn(:))**2)
 
@@ -44,7 +45,7 @@ MODULE COCG_Kernel
         x(:) = xn(:)
         Nconv = iter
 
-        DEALLOCATE(xn, xn_1, pn, pn_1, rn, rn_1)
+        DEALLOCATE(xn, xn_1, pn, pn_1, rn, rn_1, Ap)
 
         RETURN
     END SUBROUTINE
@@ -63,6 +64,8 @@ MODULE COCG_Kernel
         COMPLEX(KIND(0d0)), ALLOCATABLE :: pns(:,:), xns(:,:)
         COMPLEX(KIND(0d0)), ALLOCATABLE :: alphan_1s(:), alphan_2s(:), betan_1s(:), betan_2s(:)
         COMPLEX(KIND(0d0)), ALLOCATABLE :: pins(:), pin_1s(:), pin_2s(:)
+        COMPLEX(KIND(0d0)), ALLOCATABLE :: Ap(:)
+        COMPLEX(KIND(0d0)) :: rr
         INTEGER :: isig, iter
         DOUBLE PRECISION, ALLOCATABLE :: convs(:)
         DOUBLE PRECISION :: conv
@@ -70,14 +73,18 @@ MODULE COCG_Kernel
         ALLOCATE(xn_1s(N,0:Nsig), xns(N,0:Nsig))
         ALLOCATE(pn_1s(N,0:Nsig), pns(N,0:Nsig))
         ALLOCATE(rns(N,0:Nsig), rn_1(N))
+        ALLOCATE(Ap(N))
         ALLOCATE(alphan_1s(0:Nsig), alphan_2s(0:Nsig), betan_1s(0:Nsig), betan_2s(0:Nsig))
         ALLOCATE(pins(0:Nsig), pin_1s(0:Nsig), pin_2s(0:Nsig))
         ALLOCATE(convs(0:Nsig))
+        
 
         !! Initial Condition
-        xn_1s(:,0) = 0d0 
+        xn_1s(:,:) = 0d0 
         rn_1(:) = b(:)
-        pn_1s(:,0) = b(:)
+        DO isig = 0, Nsig
+            pn_1s(:,isig) = b(:)
+        END DO
         alphan_2s(:) = 1d0 ; betan_2s(:) = 0d0
         pin_1s(:) = 1d0 ; pin_2s(:) = 1d0
         conv = 1d10
@@ -86,7 +93,7 @@ MODULE COCG_Kernel
 
         DO WHILE(ABS(conv) > ABS(delta_conv))
             iter = iter + 1
-            CALL COCG_Step(N, rn_1(:), pn_1s(:,0), xn_1s(:,0), H, alphan_1s(0), betan_1s(0), &
+            CALL COCG_Step(N, rn_1(:), pn_1s(:,0), xn_1s(:,0), H, Ap(:), rr, alphan_1s(0), betan_1s(0), &
                             rns(:,0), pns(:,0), xns(:,0))
             
             DO isig = 1, Nsig 
@@ -100,7 +107,7 @@ MODULE COCG_Kernel
                 convs(isig) = SUM(ABS(rns(:,isig)))
             END DO
 
-            conv = MAXVAL(convs)
+            conv = SUM(convs)
 
             IF(MOD(iter,100) == 0) THEN 
                 PRINT *, "Step:", iter, "conv", conv
@@ -124,6 +131,7 @@ MODULE COCG_Kernel
         DEALLOCATE(xn_1s, pn_1s, rns, rn_1)
         DEALLOCATE(alphan_1s, alphan_2s, betan_1s, betan_2s)
         DEALLOCATE(pins, pin_1s, pin_2s)
+        DEALLOCATE(Ap)
 
         RETURN
     END SUBROUTINE

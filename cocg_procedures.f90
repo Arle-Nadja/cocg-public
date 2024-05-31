@@ -2,17 +2,20 @@ MODULE COCG_Procedure
     USE COCG_Components
     IMPLICIT NONE 
     CONTAINS 
-    SUBROUTINE COCG_Step(N, rn_1, pn_1, xn_1, A, alphan_1, betan_1, rn, pn, xn)
+    SUBROUTINE COCG_Step(N, rn_1, pn_1, xn_1, A, Ap, rr, alphan_1, betan_1, rn, pn, xn)
         IMPLICIT NONE 
         INTEGER, INTENT(in) :: N 
         COMPLEX(KIND(0d0)), INTENT(in) :: rn_1(N), pn_1(N), xn_1(N), A(N,N)
         COMPLEX(KIND(0d0)), INTENT(out) :: alphan_1, betan_1
-        COMPLEX(KIND(0d0)), INTENT(inout) :: rn(N), pn(N), xn(N)
+        COMPLEX(KIND(0d0)), INTENT(inout) :: rn(N), pn(N), xn(N), Ap(N), rr
 
-        CALL Calc_Next_Alpha(N, rn_1, pn_1, A, alphan_1)
+        rr = dot_product(rn_1, rn_1)
+        Ap(:) = MATMUL(A, pn_1)
+
+        CALL Calc_Next_Alpha(N, rr, pn_1, Ap, alphan_1)
         CALL Calc_Next_x(N, pn_1, xn_1, alphan_1, xn)
-        CALL Calc_Next_r(N, rn_1, pn_1, A, alphan_1, rn)
-        CALL Calc_Next_beta(N, rn, rn_1, betan_1)
+        CALL Calc_Next_r(N, rn_1, Ap, alphan_1, rn)
+        CALL Calc_Next_beta(N, rn, rr, betan_1)
         CALL Calc_Next_p(N, betan_1, pn_1, rn, pn)
 
         RETURN

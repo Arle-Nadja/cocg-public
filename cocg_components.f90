@@ -2,13 +2,13 @@ MODULE COCG_Components
     IMPLICIT NONE
 
     CONTAINS 
-    SUBROUTINE Calc_Next_Alpha(N, rn_1, pn_1, A, alphan_1)
+    SUBROUTINE Calc_Next_Alpha(N, rr, pn_1, Ap, alphan_1)
         IMPLICIT NONE 
         INTEGER, INTENT(in) :: N 
-        COMPLEX(KIND(0d0)), INTENT(in) :: rn_1(N), pn_1(N), A(N,N)
+        COMPLEX(KIND(0d0)), INTENT(in) :: rr, pn_1(N), AP(N)
         COMPLEX(KIND(0d0)), INTENT(out) :: alphan_1
 
-        alphan_1 = dot_product(rn_1, rn_1) / dot_product(pn_1, MATMUL(A, pn_1))
+        alphan_1 = rr / dot_product(pn_1, Ap)
 
         RETURN
     END SUBROUTINE
@@ -24,24 +24,24 @@ MODULE COCG_Components
         RETURN
     END SUBROUTINE
 
-    SUBROUTINE Calc_Next_r(N, rn_1, pn_1, A, alphan_1, rn)
+    SUBROUTINE Calc_Next_r(N, rn_1, Ap, alphan_1, rn)
         IMPLICIT NONE 
         INTEGER, INTENT(in) :: N 
-        COMPLEX(KIND(0d0)), INTENT(in) :: alphan_1, A(N,N), pn_1(N), rn_1(N)
+        COMPLEX(KIND(0d0)), INTENT(in) :: alphan_1, Ap(N), rn_1(N)
         COMPLEX(KIND(0d0)), INTENT(out) :: rn(N)
 
-        rn = rn_1 - alphan_1 * MATMUL(A, pn_1)
+        rn = rn_1 - alphan_1 * Ap
 
         RETURN
     END SUBROUTINE
 
-    SUBROUTINE Calc_Next_beta(N, rn, rn_1, betan_1)
+    SUBROUTINE Calc_Next_beta(N, rn, rr, betan_1)
         IMPLICIT NONE 
         INTEGER, INTENT(in) :: N 
-        COMPLEX(KIND(0d0)), INTENT(in) :: rn_1(N), rn(N)
+        COMPLEX(KIND(0d0)), INTENT(in) :: rr, rn(N)
         COMPLEX(KIND(0d0)), INTENT(out) :: betan_1
 
-        betan_1 = dot_product(rn, rn) / dot_product(rn_1, rn_1)
+        betan_1 = dot_product(rn, rn) / rr
 
         RETURN
     END SUBROUTINE

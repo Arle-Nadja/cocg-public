@@ -20,7 +20,7 @@ else
 	@mkdir -p modules
 endif
 
-a.exe : COCG_test.f90 $(COCG_k)
+a.exe : COCG_test.f90 $(COCG_k) $(COCG_c) $(COCG_p)
 	gfortran COCG_test.f90 $(COCG_k) $(COCG_c) $(COCG_p) $(modin)
 
 $(COCG_k) : cocg_kernel.f90 $(COCG_p)
